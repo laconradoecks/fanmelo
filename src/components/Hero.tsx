@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import PhoneMock from './PhoneMock'
-import { Arrow, Check } from './icons'
+import { GreenTick } from './Ticks'
 import { EMAIL_RE, type Count, type Role } from '../waitlist'
 
 type Props = {
@@ -9,11 +9,17 @@ type Props = {
   onPickRole: (role: Role) => void
 }
 
-const ticks = [
-  'Needs, not wishlists – every need has a reason',
-  'Prices checked, purchases proven',
-  'Get paid locally, in your own currency',
-]
+export function CountLine({ count }: { count: Count | null }) {
+  return (
+    <div className="count" aria-live="polite" style={count ? { display: 'block' } : undefined}>
+      {count && (
+        <>
+          <b>{count.value}</b> {count.label}
+        </>
+      )}
+    </div>
+  )
+}
 
 export default function Hero({ count, onQuickJoin, onPickRole }: Props) {
   const [email, setEmail] = useState('')
@@ -24,6 +30,7 @@ export default function Hero({ count, onQuickJoin, onPickRole }: Props) {
     const v = email.trim()
     if (!EMAIL_RE.test(v)) {
       setError('Enter a valid email address.')
+      document.getElementById('qEmail')?.focus()
       return
     }
     setError('')
@@ -31,62 +38,39 @@ export default function Hero({ count, onQuickJoin, onPickRole }: Props) {
   }
 
   return (
-    <section className="hero" id="top">
-      <div className="hero-glow" aria-hidden="true" />
+    <section className="hero">
       <div className="wrap hero-grid">
-        <div className="hero-copy">
-          <div className="pill">
-            <i aria-hidden="true" />
-            Early access · opening in waves
-          </div>
-          <h1>
-            Your fans can finally help with what you <span className="grad-text">need.</span>
-          </h1>
+        <div>
+          <div className="pill"><i aria-hidden="true"></i>Early access · opening in waves</div>
+          <h1>Your fans can finally help with what you need.</h1>
           <p className="lead">
-            Get a free web page and upload your needs. Share the link in your bio and videos. Your fans chip in to
-            make your dreams come true. It's that simple.
+            Get a free web page and upload your needs. Share the link in your bio and videos. Your fans chip in to make
+            your dreams come true. It's that simple.
           </p>
-
           <form className="quick" onSubmit={submit} noValidate>
-            <label htmlFor="q-email" className="sr">
-              Email address
-            </label>
+            <label htmlFor="qEmail" className="sr">Email address</label>
             <input
-              id="q-email"
+              id="qEmail"
               type="email"
               inputMode="email"
               autoComplete="email"
               placeholder="you@email.com"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              aria-invalid={!!error}
-              aria-describedby="q-err"
             />
-            <button className="btn" type="submit">
-              Get early access <Arrow />
-            </button>
+            <button className="btn" type="submit">Get early access</button>
           </form>
-          <div className="err" id="q-err" role="alert">
-            {error}
-          </div>
-          {count && (
-            <p className="count" aria-live="polite">
-              <b>{count.value}</b> {count.label}
-            </p>
-          )}
-
-          <a className="fan-link" href="#join" onClick={() => onPickRole('fan')}>
+          <div className="err" role="alert">{error}</div>
+          <CountLine count={count} />
+          <a className="fanlink" href="#join" onClick={() => onPickRole('fan')}>
             I'm a fan – tell me when it opens
           </a>
-
-          <ul className="ticks">
-            {ticks.map((t) => (
-              <li key={t}>
-                <span className="ok"><Check /></span>
-                {t}
-              </li>
-            ))}
-          </ul>
+          <div className="ticks">
+            <span><GreenTick />Needs, not wishlists – every need has a reason</span>
+            <span><GreenTick />Prices checked, purchases proven</span>
+            <span><GreenTick />Get paid locally, in your own currency</span>
+          </div>
         </div>
 
         <PhoneMock />

@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-import Header from './components/Header'
 import Hero from './components/Hero'
-import { Compare, Creators, Faq, Fans, HowItWorks, Story } from './components/Sections'
+import { Compare, Creators, Faq, Fans, Footer, Header, HowItWorks, Story } from './components/Sections'
 import Waitlist from './components/Waitlist'
-import Footer from './components/Footer'
 import { fetchCount, type Count, type Role } from './waitlist'
 
 export default function App() {
@@ -24,11 +22,8 @@ export default function App() {
 
   return (
     <>
-      <a className="skip" href="#join">
-        Skip to waitlist
-      </a>
       <Header />
-      <main>
+      <main id="top">
         <Hero count={count} onQuickJoin={quickJoin} onPickRole={setRole} />
         <Story />
         <HowItWorks />
@@ -36,14 +31,7 @@ export default function App() {
         <Creators />
         <Fans />
         <Faq />
-        <Waitlist
-          email={email}
-          setEmail={setEmail}
-          role={role}
-          setRole={setRole}
-          count={count}
-          focusKey={focusKey}
-        />
+        <Waitlist email={email} setEmail={setEmail} role={role} setRole={setRole} count={count} focusKey={focusKey} />
       </main>
       <Footer />
     </>

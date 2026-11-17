@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { CountLine } from './Hero'
 import { COUNTRIES, EMAIL_RE, cleanHandle, guessCountry, join, type Count, type JoinResult, type Role } from '../waitlist'
 
 type Props = {
@@ -34,7 +35,7 @@ export default function Waitlist({ email, setEmail, role, setRole, count, focusK
     setCountry((c) => c || guessCountry())
   }, [])
 
-  // Hero quick-join: move focus to the next field once we've scrolled here.
+  // Hero quick-join: focus the country once we've scrolled here.
   useEffect(() => {
     if (!focusKey) return
     const t = setTimeout(() => countryRef.current?.focus({ preventScroll: true }), 450)
@@ -67,94 +68,71 @@ export default function Waitlist({ email, setEmail, role, setRole, count, focusK
   }
 
   return (
-    <section className="dark join" id="join">
+    <section className="join" id="join">
       <div className="wrap">
-        <div className="join-head reveal">
-          <span className="eyebrow">Early access</span>
+        <div style={{ textAlign: 'center' }}>
+          <span className="eyebrow" style={{ color: '#E7B6FF' }}>Early access</span>
           <h2>Claim your spot before everyone else.</h2>
-          <p className="lead">
-            Creators get their page link first. Fans get told the moment their favourite creators are live.
-          </p>
-          {count && (
-            <p className="count" aria-live="polite">
-              <b>{count.value}</b> {count.label}
-            </p>
-          )}
+          <p className="lead">Creators get their page link first. Fans get told the moment their favourite creators are live.</p>
+          <CountLine count={count} />
         </div>
-
         <div className="formcard">
-          {done ? (
-            <div className="success" role="status" tabIndex={-1} ref={successRef}>
-              <div className="success-tick" aria-hidden="true">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12l5 5L20 7" />
-                </svg>
-              </div>
-              <h2>You're on the list</h2>
-              <p className="lead">We'll email you when your spot opens. Share FANMELO with your fans to move up.</p>
+          <form noValidate onSubmit={submit} style={done ? { display: 'none' } : undefined}>
+            <div className="field">
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                ref={emailRef}
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                placeholder="you@email.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-          ) : (
-            <form onSubmit={submit} noValidate>
-              <div className="field">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  ref={emailRef}
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  placeholder="you@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+            <div className="field">
+              <span className="lbl" id="roleLbl">I'm a</span>
+              <div className="seg" role="radiogroup" aria-labelledby="roleLbl">
+                <input type="radio" name="role" id="rCreator" value="creator" checked={role === 'creator'} onChange={() => setRole('creator')} />
+                <label htmlFor="rCreator">Creator</label>
+                <input type="radio" name="role" id="rFan" value="fan" checked={role === 'fan'} onChange={() => setRole('fan')} />
+                <label htmlFor="rFan">Fan</label>
               </div>
-
-              <fieldset className="field">
-                <legend className="lbl">I'm a</legend>
-                <div className="seg">
-                  {(['creator', 'fan'] as const).map((r) => (
-                    <label key={r} className={role === r ? 'on' : ''}>
-                      <input type="radio" name="role" value={r} checked={role === r} onChange={() => setRole(r)} />
-                      {r === 'creator' ? 'Creator' : 'Fan'}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-
-              <div className="field">
-                <label htmlFor="handle">
-                  TikTok, Instagram or YouTube handle <span className="opt">(optional)</span>
-                </label>
-                <input
-                  id="handle"
-                  type="text"
-                  autoComplete="off"
-                  placeholder="@yourname"
-                  maxLength={60}
-                  value={handle}
-                  onChange={(e) => setHandle(e.target.value)}
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="country">Country</label>
-                <select id="country" ref={countryRef} value={country} onChange={(e) => setCountry(e.target.value)}>
-                  <option value="">Choose your country</option>
-                  {COUNTRIES.map((c) => (
-                    <option key={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-
-              <button className="btn btn-block" type="submit" disabled={busy}>
-                {busy ? 'Joining…' : 'Join the waitlist'}
-              </button>
-              <div className="err" role="alert">
-                {error}
-              </div>
-              <p className="note">We'll only email you about FANMELO access. No spam.</p>
-            </form>
-          )}
+            </div>
+            <div className="field">
+              <label htmlFor="handle">
+                TikTok, Instagram or YouTube handle <span className="opt">(optional)</span>
+              </label>
+              <input id="handle" type="text" autoComplete="off" placeholder="@yourname" maxLength={60} value={handle} onChange={(e) => setHandle(e.target.value)} />
+            </div>
+            <div className="field">
+              <label htmlFor="country">Country</label>
+              <select id="country" ref={countryRef} required value={country} onChange={(e) => setCountry(e.target.value)}>
+                <option value="">Choose your country</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <button className="btn" type="submit" disabled={busy} style={{ width: '100%' }}>
+              {busy ? 'Joining…' : 'Join the waitlist'}
+            </button>
+            <div className="err" role="alert">{error}</div>
+            <p className="note">We'll only email you about FANMELO access. No spam.</p>
+          </form>
+          <div className="success" role="status" tabIndex={-1} ref={successRef} style={done ? { display: 'block' } : undefined}>
+            <div className="tick">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12l5 5L20 7" />
+              </svg>
+            </div>
+            <h2>You're on the list</h2>
+            <p className="lead" style={{ margin: '10px auto 0' }}>
+              We'll email you when your spot opens. Share FANMELO with your fans to move up.
+            </p>
+          </div>
         </div>
       </div>
     </section>
