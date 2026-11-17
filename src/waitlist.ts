@@ -1,17 +1,18 @@
-// Waitlist API client.
-// Set VITE_WAITLIST_ENDPOINT (e.g. in .env.local) to your Google Apps Script web app URL.
+// Waitlist API client. The backend lives in deploy/waitlist/app.py and is served
+// from the same site at /api/waitlist (nginx in production, the Vite proxy in dev).
 // GET  -> { ok: true, total: number, creators: number }
-// POST -> { ok: true } | { ok: false, error: 'duplicate' | 'invalid' | string }
+// POST -> { ok: true } | { ok: false, error: 'duplicate' | 'invalid' }
+// Override the URL with VITE_WAITLIST_ENDPOINT if the API ever moves elsewhere.
 
 export type Role = 'creator' | 'fan'
-export type Entry = { email: string; role: Role; handle: string; country: string }
+export type Entry = { email: string; role: Role; handle: string; country: string; website: string }
 export type Count = { value: string; label: string }
 export type JoinResult = 'ok' | 'duplicate' | 'invalid' | 'closed' | 'network' | 'error'
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i
 
-const ENDPOINT: string = import.meta.env.VITE_WAITLIST_ENDPOINT ?? ''
-const enabled = /^https:\/\//.test(ENDPOINT)
+const ENDPOINT: string = import.meta.env.VITE_WAITLIST_ENDPOINT || '/api/waitlist'
+const enabled = /^(https:\/\/|\/)/.test(ENDPOINT)
 
 const fmt = (n: number) => n.toLocaleString('en-US')
 
@@ -31,10 +32,15 @@ export async function fetchCount(): Promise<Count | null> {
 export async function join(entry: Entry): Promise<JoinResult> {
   if (!enabled) return 'closed'
   try {
-    const r = await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(entry) })
-    const d = await r.json()
-    if (d.ok) return 'ok'
-    if (d.error === 'duplicate' || d.error === 'invalid') return d.error
+    const r = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    })
+    // Rate-limited or server errors come back as non-JSON pages.
+    const d = await r.json().catch(() => null)
+    if (d?.ok) return 'ok'
+    if (d?.error === 'duplicate' || d?.error === 'invalid') return d.error
     return 'error'
   } catch {
     return 'network'

@@ -9,9 +9,9 @@ type Props = {
   onPickRole: (role: Role) => void
 }
 
-export function CountLine({ count }: { count: Count | null }) {
+export function CountLine({ count, id }: { count: Count | null; id: string }) {
   return (
-    <div className="count" aria-live="polite" style={count ? { display: 'block' } : undefined}>
+    <div className="count" id={id} aria-live="polite" style={count ? { display: 'block' } : undefined}>
       {count && (
         <>
           <b>{count.value}</b> {count.label}
@@ -47,7 +47,7 @@ export default function Hero({ count, onQuickJoin, onPickRole }: Props) {
             Get a free web page and upload your needs. Share the link in your bio and videos. Your fans chip in to make
             your dreams come true. It's that simple.
           </p>
-          <form className="quick" onSubmit={submit} noValidate>
+          <form className="quick" id="quickForm" onSubmit={submit} noValidate>
             <label htmlFor="qEmail" className="sr">Email address</label>
             <input
               id="qEmail"
@@ -61,9 +61,9 @@ export default function Hero({ count, onQuickJoin, onPickRole }: Props) {
             />
             <button className="btn" type="submit">Get early access</button>
           </form>
-          <div className="err" role="alert">{error}</div>
-          <CountLine count={count} />
-          <a className="fanlink" href="#join" onClick={() => onPickRole('fan')}>
+          <div className="err" id="qErr" role="alert">{error}</div>
+          <CountLine count={count} id="countHero" />
+          <a className="fanlink" href="#join" id="fanLink" onClick={() => onPickRole('fan')}>
             I'm a fan – tell me when it opens
           </a>
           <div className="ticks">

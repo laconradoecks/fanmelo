@@ -28,6 +28,7 @@ export default function Waitlist({ email, setEmail, role, setRole, count, focusK
   const countryRef = useRef<HTMLSelectElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const successRef = useRef<HTMLDivElement>(null)
+  const trapRef = useRef<HTMLInputElement>(null)
 
   // Guess country after hydration so server and client HTML match.
   useEffect(() => {
@@ -61,7 +62,7 @@ export default function Waitlist({ email, setEmail, role, setRole, count, focusK
       return
     }
     setBusy(true)
-    const res = await join({ email: clean, role, handle: cleanHandle(handle), country })
+    const res = await join({ email: clean, role, handle: cleanHandle(handle), country, website: trapRef.current?.value ?? '' })
     setBusy(false)
     if (res === 'ok') setDone(true)
     else setError(MESSAGES[res])
@@ -74,10 +75,15 @@ export default function Waitlist({ email, setEmail, role, setRole, count, focusK
           <span className="eyebrow" style={{ color: '#E7B6FF' }}>Early access</span>
           <h2>Claim your spot before everyone else.</h2>
           <p className="lead">Creators get their page link first. Fans get told the moment their favourite creators are live.</p>
-          <CountLine count={count} />
+          <CountLine count={count} id="countForm" />
         </div>
         <div className="formcard">
-          <form noValidate onSubmit={submit} style={done ? { display: 'none' } : undefined}>
+          <form id="wlForm" noValidate onSubmit={submit} style={done ? { display: 'none' } : undefined}>
+            {/* Bot trap: hidden from people and screen readers; bots that fill it in are ignored by the server. */}
+            <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', width: 1, height: 1, overflow: 'hidden' }}>
+              <label htmlFor="website">Website</label>
+              <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" ref={trapRef} defaultValue="" />
+            </div>
             <div className="field">
               <label htmlFor="email">Email</label>
               <input
@@ -116,20 +122,20 @@ export default function Waitlist({ email, setEmail, role, setRole, count, focusK
                 ))}
               </select>
             </div>
-            <button className="btn" type="submit" disabled={busy} style={{ width: '100%' }}>
+            <button className="btn" type="submit" id="submitBtn" disabled={busy} style={{ width: '100%' }}>
               {busy ? 'Joining…' : 'Join the waitlist'}
             </button>
-            <div className="err" role="alert">{error}</div>
+            <div className="err" id="fErr" role="alert">{error}</div>
             <p className="note">We'll only email you about FANMELO access. No spam.</p>
           </form>
-          <div className="success" role="status" tabIndex={-1} ref={successRef} style={done ? { display: 'block' } : undefined}>
+          <div className="success" id="success" role="status" tabIndex={-1} ref={successRef} style={done ? { display: 'block' } : undefined}>
             <div className="tick">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12l5 5L20 7" />
               </svg>
             </div>
             <h2>You're on the list</h2>
-            <p className="lead" style={{ margin: '10px auto 0' }}>
+            <p className="lead" style={{ margin: '10px auto 0' }} id="successMsg">
               We'll email you when your spot opens. Share FANMELO with your fans to move up.
             </p>
           </div>

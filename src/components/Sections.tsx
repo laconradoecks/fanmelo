@@ -156,7 +156,7 @@ export function Footer() {
           <div className="brandrow" style={{ marginBottom: 8 }}>
             <span className="brand" style={{ fontSize: '1.05rem' }}>FAN<span className="m">M</span>ELO</span>
           </div>
-          <div>© {YEAR} FANMELO · Where fans contribute towards creators' needs · A Yosaki company</div>
+          <div>© <span id="yr">{YEAR}</span> FANMELO · Where fans contribute towards creators' needs · A Yosaki company · <a href="/privacy/" style={{ color: 'inherit' }}>Privacy</a></div>
         </div>
         <nav className="socials" aria-label="FANMELO on social media">
           <a href="https://www.tiktok.com/@fanmelo">TikTok</a>
