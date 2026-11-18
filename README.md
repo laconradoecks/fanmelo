@@ -93,7 +93,7 @@ Run as root on the droplet (DigitalOcean web console or SSH).
 5. **Upload the site** from your Mac (needs SSH key access to the droplet):
 
    ```bash
-   DROPLET=root@138.197.117.174 ./deploy/deploy.sh
+   DROPLET=root@138.197.117.174 SSH_KEY=~/.ssh/yosaki_ops ./deploy/deploy.sh
    ```
 
    Test URL: `http://fanmelo.138.197.117.174.sslip.io`. To try **Remove** on the test URL, add it to
@@ -121,7 +121,7 @@ directly; `deploy/nginx/fanmelo.conf` is only the starting template.
 
 ```bash
 git push
-DROPLET=root@138.197.117.174 ./deploy/deploy.sh   # builds, uploads dist/, pulls the repo, restarts the waitlist service
+DROPLET=root@138.197.117.174 SSH_KEY=~/.ssh/yosaki_ops ./deploy/deploy.sh   # builds, uploads dist/, pulls the repo, restarts the waitlist service
 ```
 
 **Back up the list:** `sqlite3 /var/lib/fanmelo/waitlist.db .dump > fanmelo-waitlist-backup.sql` (or download the CSV).
