@@ -154,7 +154,7 @@ export function Footer() {
       <div className="wrap foot">
         <div>
           <div className="brandrow" style={{ marginBottom: 8 }}>
-            <span className="brand" style={{ fontSize: '1.05rem' }}>FAN<span className="m">M</span>ELO</span>
+            <span className="brand" style={{ height: 24, width: 106 }}>FAN<span className="m">M</span>ELO</span>
           </div>
           <div>© <span id="yr">{YEAR}</span> FANMELO · Where fans contribute towards creators' needs · A Yosaki company · <a href="/privacy/" style={{ color: 'inherit' }}>Privacy</a></div>
         </div>

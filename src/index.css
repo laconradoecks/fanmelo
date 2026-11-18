@@ -44,8 +44,8 @@ header{position:absolute;top:0;left:0;right:0;z-index:5;padding:20px 0}
 .top{display:flex;justify-content:space-between;align-items:center}
 .brandrow{display:flex;align-items:center;gap:10px;text-decoration:none}
 .brandrow img{width:40px;height:40px}
-.brand{font:800 1.3rem Montserrat,sans-serif;letter-spacing:.05em;color:var(--ink)}
-.brand .m{color:#B0127A}
+.brand{display:block;height:28px;width:123px;background:url(/logo.png) left center/contain no-repeat;color:transparent;overflow:hidden;white-space:nowrap;text-indent:120%}
+.brand .m{color:transparent}
 .navcta{font:700 .9rem Montserrat,sans-serif;color:var(--ink);text-decoration:none;padding:0 18px;border-radius:999px;min-height:44px;display:inline-flex;align-items:center;background:rgba(255,255,255,.6);border:1px solid rgba(42,27,92,.12);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 
 /* hero */
@@ -57,8 +57,8 @@ header{position:absolute;top:0;left:0;right:0;z-index:5;padding:20px 0}
 .hero-grid{display:grid;gap:48px;align-items:center;position:relative;z-index:1}
 .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.9);font:700 .8rem Montserrat,sans-serif;color:var(--ink);margin-bottom:22px}
 .pill i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(14,122,78,.16)}
-.hero h1{margin-bottom:20px}
-.hero .lead{color:#3B3360;font-size:1.15rem}
+.hero h1{margin-bottom:20px;font:800 clamp(42px,7.4vw,88px)/.96 var(--head);letter-spacing:-.03em;color:#2A1B5C}
+.hero .lead{color:#3A2A70;font-size:clamp(17px,1.7vw,20px);line-height:1.5}
 .quick{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;max-width:540px}
 .quick input{flex:1 1 240px;border-color:transparent;box-shadow:0 10px 30px rgba(42,27,92,.12)}
 .quick .btn{flex:1 1 100%}
@@ -165,8 +165,7 @@ label,.lbl{display:block;font:700 .9rem Montserrat,sans-serif;margin-bottom:8px;
 .note{font-size:.85rem;color:var(--muted);margin-top:12px;text-align:center}
 
 footer{background:#140F26;color:#BDB3DD;padding:40px 0 48px;font-size:.92rem}
-footer .brand{color:#fff}
-footer .brand .m{color:#FF5FAE}
+footer .brand{background-image:url(/logo-footer.png)}
 .foot{display:flex;flex-direction:column;gap:18px}
 .socials{display:flex;gap:10px;flex-wrap:wrap}
 .socials a{min-height:44px;padding:0 16px;border:1px solid rgba(255,255,255,.2);border-radius:999px;display:inline-flex;align-items:center;text-decoration:none;font-weight:600;color:#fff}

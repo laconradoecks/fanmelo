@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#2A1B5C">
   <link rel="canonical" href="https://fanmelo.com/privacy/">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/logo.png" as="image">
   <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="FANMELO">
@@ -24,8 +25,8 @@
     .hero{background:linear-gradient(165deg,#E9DEFF 0%,#D4C2FF 45%,#BFA6FF 100%);padding:24px 0 56px}
     .wrap{max-width:760px;margin:0 auto;padding:0 20px}
     .top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:48px}
-    .brand{font:800 1.3rem Montserrat,sans-serif;letter-spacing:.05em;color:var(--ink);text-decoration:none}
-    .brand .m{color:#B0127A}
+    .brand{display:block;height:28px;width:123px;background:url(/logo.png) left center/contain no-repeat;color:transparent;overflow:hidden;white-space:nowrap;text-indent:120%}
+    .brand .m{color:transparent}
     .back{font:700 .9rem Montserrat,sans-serif;color:var(--ink);text-decoration:none;padding:0 18px;border-radius:999px;min-height:44px;display:inline-flex;align-items:center;background:rgba(255,255,255,.6);border:1px solid rgba(42,27,92,.12)}
     .eyebrow{display:inline-block;font:700 .76rem/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--vio);margin-bottom:14px}
     h1,h2{font-family:var(--head);color:var(--night);margin:0;letter-spacing:-.025em}
@@ -42,8 +43,7 @@
     .card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px 24px;box-shadow:0 10px 30px rgba(42,27,92,.06)}
     a:focus-visible{outline:3px solid rgba(138,63,228,.45);outline-offset:3px}
     footer{background:#140F26;color:#BDB3DD;padding:32px 0 40px;font-size:.92rem}
-    footer .brand{color:#fff;font-size:1.05rem}
-    footer .brand .m{color:#FF5FAE}
+    footer .brand{background-image:url(/logo-footer.png);height:24px;width:106px}
     footer p{color:#BDB3DD;margin-top:8px}
   </style>
 </head>

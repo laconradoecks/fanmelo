@@ -42,7 +42,7 @@ export default function Hero({ count, onQuickJoin, onPickRole }: Props) {
       <div className="wrap hero-grid">
         <div>
           <div className="pill"><i aria-hidden="true"></i>Early access · opening in waves</div>
-          <h1>Your fans can finally help with what you need.</h1>
+          <h1>Your fans can pay for what you need.</h1>
           <p className="lead">
             Get a free web page and upload your needs. Share the link in your bio and videos. Your fans chip in to make
             your dreams come true. It's that simple.
