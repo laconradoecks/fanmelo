@@ -12,6 +12,9 @@ Environment=WAITLIST_PORT=8788
 # Add the temporary sslip.io address here too while testing before the domain is live, e.g.
 # Environment=ADMIN_ORIGINS=https://fanmelo.com,https://www.fanmelo.com,http://fanmelo.138.197.117.174.sslip.io
 Environment=ADMIN_ORIGINS=https://fanmelo.com,https://www.fanmelo.com
+# Admin password (one htpasswd line, "fanmelo:$apr1$..."). systemd copies it somewhere only this
+# service can read; restart the service after changing the password.
+LoadCredential=admin.htpasswd:/etc/fanmelo/admin.htpasswd
 # Runs as a throwaway unprivileged user; the database lives in /var/lib/fanmelo.
 DynamicUser=yes
 StateDirectory=fanmelo

@@ -16,8 +16,8 @@ deploy/
   waitlist/app.py                     # waitlist service (Python stdlib + SQLite)
   waitlist/fanmelo-waitlist.service   # systemd unit
   nginx/fanmelo.conf                  # nginx server block
-  nginx/waitlist-locations.conf       # /api/waitlist + password-protected /admin/
-  nginx/waitlist-ratelimit.conf       # 10 waitlist requests/min per IP
+  nginx/waitlist-locations.conf       # /api/waitlist + /admin/ (sign-in page and dashboard)
+  nginx/waitlist-ratelimit.conf       # 10 waitlist requests/min per IP, 6 sign-in attempts/min
   deploy.sh                           # build on your Mac, upload, restart the service
 ```
 
@@ -30,8 +30,13 @@ npm run dev                         # http://localhost:5173 (proxies /api and /a
 ```
 
 `npm run build` writes the finished site to `dist/`; `npm run preview` serves it (also proxied to the API).
-Locally `/admin/` has no password (nginx adds it on the server). To try the Remove button locally, start the API with
-`ADMIN_ORIGINS=http://localhost:5173 python3 deploy/waitlist/app.py`.
+To sign in to `/admin/` locally, make a password file and point the API at it (use your dev server's address
+in `ADMIN_ORIGINS` so Remove and Sign out work):
+
+```bash
+echo "fanmelo:$(openssl passwd -apr1)" > admin.htpasswd
+ADMIN_PASSWORD_FILE=admin.htpasswd ADMIN_ORIGINS=http://localhost:5174 python3 deploy/waitlist/app.py
+```
 
 ## Waitlist
 
@@ -43,9 +48,11 @@ The form POSTs to `/api/waitlist`; nginx forwards it to the Python service on `1
 - **Bots:** a hidden "website" field (invisible to people and screen readers) catches bots; the server pretends to accept them and saves nothing. nginx also limits each IP to 10 requests a minute.
 - **Counts:** the page asks `GET /api/waitlist` for totals and shows "N creators waiting" once there are more than 50.
 
-**See who joined:** open `https://DOMAIN/admin/` and sign in (username `fanmelo`). It shows totals for everyone,
-creators and fans, a searchable table, a **Remove** button per person (for unsubscribe or deletion requests),
-and **Download CSV** for Excel or Google Sheets.
+**See who joined:** open `https://DOMAIN/admin/` and sign in with the admin password on the FANMELO sign-in page.
+The dashboard shows totals (everyone, creators, fans, joined in the last 7 days), the top countries, a searchable
+list with a Creators/Fans filter, a **Remove** button per person (for unsubscribe or deletion requests) and
+**Download CSV** for Excel or Google Sheets. Signing in lasts 7 days on that browser; **Sign out** ends it.
+After 5 wrong passwords an IP has to wait 15 minutes.
 
 **Privacy:** the policy is `public/privacy/index.html` (linked from the footer). It names
 `privacy@fanmelo.com` as the contact; set up that address (or change it on the page) before going live.
@@ -64,7 +71,16 @@ Run as root on the droplet (DigitalOcean web console or SSH).
 
    If the repo is private, the droplet needs a GitHub deploy key or token to clone and pull.
 
-2. **Waitlist service**
+2. **Admin password** (asks twice, never shown on screen)
+
+   ```bash
+   mkdir -p /etc/fanmelo
+   echo "fanmelo:$(openssl passwd -apr1)" > /etc/fanmelo/admin.htpasswd && chmod 600 /etc/fanmelo/admin.htpasswd
+   ```
+
+   To change it later, run the same `echo` line again, then `systemctl restart fanmelo-waitlist`.
+
+3. **Waitlist service**
 
    ```bash
    cp /var/www/fanmelo/repo/deploy/waitlist/fanmelo-waitlist.service /etc/systemd/system/
@@ -72,7 +88,7 @@ Run as root on the droplet (DigitalOcean web console or SSH).
    curl -s http://127.0.0.1:8788/api/waitlist    # → {"ok": true, "total": 0, "creators": 0}
    ```
 
-3. **nginx**
+4. **nginx**
 
    ```bash
    cp /var/www/fanmelo/repo/deploy/nginx/waitlist-ratelimit.conf /etc/nginx/conf.d/fanmelo-waitlist-ratelimit.conf
@@ -81,12 +97,6 @@ Run as root on the droplet (DigitalOcean web console or SSH).
    # Until the domain points here, use a test address (sslip.io resolves it to the droplet IP):
    sed -i 's/server_name DOMAIN_HERE www.DOMAIN_HERE;/server_name fanmelo.138.197.117.174.sslip.io;/' /etc/nginx/sites-available/fanmelo
    ln -s /etc/nginx/sites-available/fanmelo /etc/nginx/sites-enabled/fanmelo
-   ```
-
-4. **Admin password** (asks twice, never shown on screen; username `fanmelo`)
-
-   ```bash
-   printf 'fanmelo:%s\n' "$(openssl passwd -apr1)" > /etc/nginx/fanmelo-admin.htpasswd
    nginx -t && systemctl reload nginx
    ```
 
