@@ -48,7 +48,7 @@ The form POSTs to `/api/waitlist`; nginx forwards it to the Python service on `1
 - **Bots:** a hidden "website" field (invisible to people and screen readers) catches bots; the server pretends to accept them and saves nothing. nginx also limits each IP to 10 requests a minute.
 - **Counts:** the page asks `GET /api/waitlist` for totals and shows "N creators waiting" once there are more than 50.
 
-**See who joined:** open `https://DOMAIN/admin/` and sign in with the admin password on the FANMELO sign-in page.
+**See who joined:** open `https://DOMAIN/admin/` and sign in on the FANMELO sign-in page (username `fanmelo` and the admin password).
 The dashboard shows totals (everyone, creators, fans, joined in the last 7 days), the top countries, a searchable
 list with a Creators/Fans filter, a **Remove** button per person (for unsubscribe or deletion requests) and
 **Download CSV** for Excel or Google Sheets. Signing in lasts 7 days on that browser; **Sign out** ends it.

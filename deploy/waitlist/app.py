@@ -118,16 +118,19 @@ def apr1(password, salt):
     return "$apr1$%s$%s" % (salt.decode(), out)
 
 
-def check_password(password):
+def check_login(username, password):
     try:
         with open(ADMIN_PASSWORD_FILE, encoding="utf-8") as f:
-            stored = f.readline().strip().split(":", 1)[-1]
+            user, _, stored = f.readline().strip().partition(":")
     except OSError:
         return False
     parts = stored.split("$")
     if len(parts) != 4 or parts[1] != "apr1" or not password:
         return False
-    return hmac.compare_digest(apr1(password, parts[2]), stored)
+    # Check the password even when the username is wrong, so both take the same time.
+    good_password = hmac.compare_digest(apr1(password, parts[2]), stored)
+    good_user = hmac.compare_digest(username.strip().lower().encode(), user.lower().encode())
+    return good_password and good_user
 
 
 def make_session():
@@ -292,11 +295,12 @@ class Handler(BaseHTTPRequestHandler):
         ip = self.client_ip()
         if too_many_fails(ip):
             return self.page(429, login_page("Too many wrong passwords. Wait 15 minutes, then try again."))
-        password = self.read_form().get("password", "")
-        if not check_password(password):
+        form = self.read_form()
+        username = form.get("username", "")
+        if not check_login(username, form.get("password", "")):
             note_fail(ip)
             time.sleep(1)  # slows down guessing
-            return self.page(401, login_page("That password isn't right. Check it and try again."))
+            return self.page(401, login_page("That username or password isn't right. Check them and try again.", username))
         return self.redirect("/admin/", self.cookie(make_session(), SESSION_SECONDS))
 
     def remove(self):
@@ -374,9 +378,11 @@ def nice_time(t):
     return d.strftime("%-d %b %Y, %H:%M") if d else t
 
 
-def login_page(error=""):
+def login_page(error="", username=""):
     err = '<p class="err" role="alert">%s</p>' % html.escape(error) if error else ""
-    return LOGIN_PAGE % {"error": err}
+    return LOGIN_PAGE % {"error": err, "username": html.escape(username[:64]),
+                         "focus_user": "" if username else "autofocus",
+                         "focus_pass": "autofocus" if username else ""}
 
 
 def dashboard_page(rows):
@@ -437,6 +443,10 @@ label{display:block;font:700 .85rem var(--ui);margin-bottom:8px;color:var(--ink)
 form{display:flex;flex-direction:column;gap:16px}
 .err{margin:0;color:var(--bad);font-size:.92rem;background:#FDF0F4;border-radius:12px;padding:10px 14px}
 .back{font:700 .85rem var(--ui);color:var(--muted);text-decoration:none;text-align:center}
+.pw{position:relative}.pw input{padding-right:56px}
+.eye{position:absolute;right:4px;top:50%%;transform:translateY(-50%%);width:46px;height:46px;border:0;border-radius:12px;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.eye:hover{color:var(--ink);background:#F6F2FF}
+.eye .shut,.eye[aria-pressed=true] .open{display:none}.eye[aria-pressed=true] .shut{display:block}
 .back:hover{color:var(--ink)}
 </style></head><body>
 <main class="card">
@@ -444,13 +454,32 @@ form{display:flex;flex-direction:column;gap:16px}
 <div><h1>Waitlist dashboard</h1><p class="sub">Sign in to see who has joined.</p></div>
 %(error)s
 <form method="post" action="/admin/login">
-<input type="text" name="username" value="fanmelo" autocomplete="username" hidden>
+<div><label for="username">Username</label>
+<input id="username" name="username" type="text" value="%(username)s" autocomplete="username"
+ autocapitalize="none" autocorrect="off" spellcheck="false" required %(focus_user)s></div>
 <div><label for="password">Password</label>
-<input id="password" name="password" type="password" autocomplete="current-password" required autofocus></div>
+<div class="pw"><input id="password" name="password" type="password" autocomplete="current-password" required %(focus_pass)s>
+<button type="button" class="eye" id="eye" aria-label="Show password" aria-pressed="false" title="Show password">
+<svg class="open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+<svg class="shut" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+</button></div></div>
 <button class="btn" type="submit">Sign in</button>
 </form>
 <a class="back" href="/">Back to fanmelo.com</a>
-</main></body></html>"""
+</main>
+<script>
+var pw = document.getElementById('password'), eye = document.getElementById('eye');
+eye.addEventListener('click', function () {
+  var show = pw.type === 'password';
+  pw.type = show ? 'text' : 'password';
+  eye.setAttribute('aria-pressed', show);
+  eye.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  eye.title = show ? 'Hide password' : 'Show password';
+  pw.focus();
+});
+// Never submit the password as visible text left on screen.
+pw.form.addEventListener('submit', function () { pw.type = 'password'; });
+</script></body></html>"""
 
 DASHBOARD_PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
